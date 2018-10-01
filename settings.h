@@ -49,7 +49,10 @@ public:
 
     QString testerName() const;
     void setTesterName(const QString &testerName);
-    void readName(QString argument);
+    bool readName(QString argument);
+
+    int slotNo() const;
+    void setSlotNo(int slotNo);
 
 signals:
     void customerChanged();
@@ -76,7 +79,7 @@ private:
     QString m_guiRevision;
     QString m_testerName;
     QString m_guiIp;
-
+    int m_slotNo;
 };
 
 QDataStream &operator<<(QDataStream &in, const Settings &settings);

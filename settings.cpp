@@ -16,13 +16,13 @@ Settings::Settings(QObject *parent, Utilities *utilities)
     , m_guiRevision("")
     , m_testerName("")
     , m_guiIp("")
+    , m_slotNo(0)
 {
 }
 
 bool Settings::readArgs(QStringList &arguments)
 {
     bool argsStatus = false;
-    bool customerSet = false;
     bool platformSet = false;
     bool guiIpSet = false;
     int argsCount = 0;
@@ -31,7 +31,7 @@ bool Settings::readArgs(QStringList &arguments)
         m_utilities->debugLogMessage("ERROR: NO args passed at runtime, exiting...");
         exit(EXIT_FAILURE);
     } else {
-        argsCount = arguments.count() / 2;     // Count is /2 because there is a option followed by value
+        argsCount = arguments.count() / 2;     // Count is "/ 2" because there is a option followed by value
     }
 
     for (int i = 0; i < argsCount; i++) {
@@ -46,7 +46,6 @@ bool Settings::readArgs(QStringList &arguments)
             platformSet = readPlatformArgument(argument);
         } else if (option.startsWith("-c") || option.startsWith("--customer")) {
             argument = removeOptionTakeArgument(option, arguments);
-            customerSet = readCustomerArgument(argument);
         } else if (option.startsWith("-g") || option.startsWith("--gui")) {
             argument = removeOptionTakeArgument(option, arguments);
             guiIpSet = readGuiIp(argument);
@@ -61,23 +60,16 @@ bool Settings::readArgs(QStringList &arguments)
         }
     }
 
-#ifndef QT_DEBUG
-    if (!customerSet) {
-        setCustomer(Enums::CUSTOMER_VIRGIN);
-        setModelToTest(Enums::UUT_CM_MERCURY);
-    }
-
-    if (!platformSet) {
+#ifdef QT_DEBUG
+    if (!platformSet)
         setPlatform(Enums::PLATFORM_CMTX3);
-    }
 
-    if (!guiIpSet) {
+    if (!guiIpSet)
         setGuiIp("192.168.9.10");
-    }
 
     argsStatus = true;
 #else
-    if (customerSet && platformSet && guiIpSet) {
+    if (platformSet && guiIpSet) {
         m_utilities->debugLogMessage("Required arguments set to proceed");
         argsStatus = true;
     }
@@ -194,6 +186,17 @@ bool Settings::readCustomerArgument(QString argument)
     return status;
 }
 
+int Settings::slotNo() const
+{
+    return m_slotNo;
+}
+
+void Settings::setSlotNo(int slotNo)
+{
+    m_utilities->debugLogMessage(QString("Setting Slot Number to %1").arg(slotNo));
+    m_slotNo = slotNo;
+}
+
 QString Settings::guiRevision() const
 {
     return m_guiRevision;
@@ -289,9 +292,16 @@ bool Settings::readGuiIp(QString argument)
     return result;
 }
 
-void Settings::readName(QString argument)
+bool Settings::readName(QString argument)
 {
     setTesterName(argument);
+    QStringList list = argument.split("SLOT");
+    if (!list.isEmpty()) {
+        setSlotNo(QString(list.at(1)).toInt());
+        return true;
+    } else {
+        return false;
+    }
 }
 
 QString Settings::testerName() const

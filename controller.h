@@ -11,7 +11,7 @@ class Controller : public QObject
 {
     Q_OBJECT
 public:
-    explicit Controller(QStringList arguments = QStringList(), QObject *parent = nullptr);
+    explicit Controller(QStringList arguments = QStringList(), QString name = QString(), QObject *parent = nullptr);
 
     Settings *settings();
 

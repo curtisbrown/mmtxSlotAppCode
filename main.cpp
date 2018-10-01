@@ -16,14 +16,14 @@ int main(int argc, char *argv[])
         testerId.close();
     }
 #else
-    name = "999Tester1";
+    name = "999SLOT1";
 #endif
 
     QStringList arguments;
     for (int i = 1; i < argc; i++)
         arguments << argv[i];
 
-    Controller controller(arguments);
+    Controller controller(arguments, name);
 
     return a.exec();
 }
